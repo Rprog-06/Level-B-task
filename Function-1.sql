@@ -7,3 +7,6 @@ AS
 BEGIN
     RETURN CONVERT(VARCHAR(10), @InputDate, 101)  -- MM/DD/YYYY
 END
+GO
+SELECT dbo.fn_FormatDate_MMDDYYYY(GETDATE()) AS FormattedDate;
+

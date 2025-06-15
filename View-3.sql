@@ -15,3 +15,5 @@ JOIN Production.ProductSubcategory c ON p.ProductSubcategoryID = c.ProductSubcat
 JOIN Purchasing.ProductVendor pv ON p.ProductID = pv.ProductID  -- fixed schema
 JOIN Purchasing.Vendor v ON pv.BusinessEntityID = v.BusinessEntityID
 WHERE p.SellEndDate IS NULL;
+GO
+SELECT TOP 10 * FROM MyProducts;

@@ -1,13 +1,11 @@
-﻿IF OBJECT_ID('trg_CheckStock', 'TR') IS NOT NULL
-    DROP TRIGGER trg_CheckStock;
+﻿USE AdventureWorks2019;
 GO
-
-CREATE TRIGGER trg_CheckStock
+CREATE TRIGGER trg_CheckStockBeforeInsert
 ON Sales.SalesOrderDetail
 INSTEAD OF INSERT
 AS
 BEGIN
-    -- Check if any inserted product has insufficient stock
+    -- Check for insufficient stock
     IF EXISTS (
         SELECT 1
         FROM INSERTED i
@@ -15,20 +13,35 @@ BEGIN
         WHERE pi.Quantity < i.OrderQty
     )
     BEGIN
-        RAISERROR('❌ Insufficient stock to fulfill the order.', 16, 1);
+        RAISERROR('Cannot place order: Insufficient stock.', 16, 1);
         ROLLBACK TRANSACTION;
         RETURN;
     END
 
-    -- Insert the order details
-    INSERT INTO Sales.SalesOrderDetail (SalesOrderID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount, rowguid, ModifiedDate)
+    -- Proceed to insert
+    INSERT INTO Sales.SalesOrderDetail (
+        SalesOrderID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount,
+        rowguid, ModifiedDate, SpecialOfferID
+    )
     SELECT 
-        SalesOrderID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount, NEWID(), GETDATE()
+        SalesOrderID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount,
+        NEWID(), GETDATE(), ISNULL(SpecialOfferID, 1)
     FROM INSERTED;
 
-    -- Update the stock
+    -- Update inventory
     UPDATE pi
     SET pi.Quantity = pi.Quantity - i.OrderQty
     FROM Production.ProductInventory pi
     JOIN INSERTED i ON pi.ProductID = i.ProductID;
 END;
+GO
+INSERT INTO Sales.SalesOrderDetail (
+    SalesOrderID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount,
+    rowguid, ModifiedDate, SpecialOfferID
+)
+VALUES (
+    43700, 776, 3, 50.00, 0.0, NEWID(), GETDATE(), 1
+);
+SELECT TOP 1 SalesOrderID FROM Sales.SalesOrderHeader;
+SELECT TOP 1 ProductID, Quantity FROM Production.ProductInventory WHERE Quantity >= 5;
+

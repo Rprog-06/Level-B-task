@@ -19,3 +19,5 @@ JOIN Production.Product p ON sod.ProductID = p.ProductID
 JOIN Sales.Store s ON cust.StoreID = s.BusinessEntityID
 WHERE cust.StoreID IS NOT NULL
   AND CAST(soh.OrderDate AS DATE) = CAST(GETDATE() - 1 AS DATE);
+  GO
+SELECT * FROM vwYesterdayCustomerOrders;

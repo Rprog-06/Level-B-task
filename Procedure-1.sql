@@ -20,6 +20,8 @@ BEGIN
     JOIN Production.ProductInventory pi ON p.ProductID = pi.ProductID
     WHERE p.ProductID = @ProductID;
 
+	
+
     --  Default price
     IF @UnitPrice IS NULL
         SET @UnitPrice = @ProductPrice;
@@ -27,7 +29,7 @@ BEGIN
     --  Check stock
     IF @AvailableStock < @Quantity
     BEGIN
-        PRINT '❌ Not enough stock. Order aborted.';
+        PRINT 'Not enough stock. Order aborted.';
         RETURN;
     END
 
@@ -55,6 +57,18 @@ BEGIN
     IF @AvailableStock - @Quantity < 10 -- arbitrary reorder level
         PRINT ' Warning: Stock dropped below safe threshold.';
 END;
+GO
+-- Use an existing order (e.g., 43659) and product (e.g., 776)
+SELECT TOP 1 SalesOrderID FROM Sales.SalesOrderHeader ORDER BY NEWID(); -- Get random order
+SELECT TOP 1 ProductID, Quantity FROM Production.ProductInventory WHERE Quantity > 10; -- Get a valid product
+EXEC InsertOrderDetails 
+    @OrderID = 56464,     -- Use a valid SalesOrderID
+    @ProductID = 1,     -- Ensure this ProductID has quantity > 10
+    @UnitPrice = NULL,    -- Should default to Product.ListPrice
+    @Quantity = 408,        
+    @Discount = 0.1;
+
+
 
 
 

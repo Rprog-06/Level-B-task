@@ -8,4 +8,7 @@ AS
 BEGIN
     RETURN CONVERT(VARCHAR(8), @InputDate, 112) -- Format: YYYYMMDD
 END
+GO 
+SELECT dbo.fn_FormatDate_YYYYMMDD(GETDATE()) AS FormattedDate;
+
 

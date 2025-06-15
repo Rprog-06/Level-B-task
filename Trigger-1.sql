@@ -15,3 +15,9 @@ BEGIN
     DELETE FROM Sales.SalesOrderHeader
     WHERE SalesOrderID IN (SELECT SalesOrderID FROM DELETED);
 END;
+GO
+SELECT TOP 1 SalesOrderID FROM Sales.SalesOrderHeader;
+-- Example: 43659
+DELETE FROM Sales.SalesOrderHeader WHERE SalesOrderID = 43659;
+SELECT * FROM Sales.SalesOrderHeader WHERE SalesOrderID = 43659;
+SELECT * FROM Sales.SalesOrderDetail WHERE SalesOrderID = 43659;
